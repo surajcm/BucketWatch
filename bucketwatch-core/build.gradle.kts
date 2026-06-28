@@ -1,18 +1,21 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.detekt)
+    jacoco
 }
 
 kotlin {
-    // Targets Java 11 bytecode per BRD §7.4 (NFR11). The toolchain is auto-provisioned
-    // by the foojay resolver in settings.gradle.kts if no JDK 11 is installed locally.
     jvmToolchain(11)
-
-    // Enforce explicit visibility on all public API — this is a published library.
     explicitApi()
 }
 
+detekt {
+    source.setFrom("src/main/kotlin")
+    config.setFrom(rootDir.resolve("config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
 dependencies {
-    // Required runtime dependency, exposed to consumers (they pass their own S3Client).
     api(platform(libs.aws.bom))
     api(libs.aws.s3)
 
@@ -24,4 +27,13 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }

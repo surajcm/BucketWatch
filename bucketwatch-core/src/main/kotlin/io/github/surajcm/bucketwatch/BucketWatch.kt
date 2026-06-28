@@ -18,6 +18,7 @@ public object BucketWatch {
      * No-op factory stub. Confirms the AWS SDK [S3Client] type is on the public
      * compile classpath; replaced by the real builder in M4.
      */
+    @Suppress("UnusedParameter") // stub — s3Client is wired in M4
     public fun create(s3Client: S3Client): Nothing =
         throw NotImplementedError("BucketWatch is not implemented yet (see implementation-plan.md, M4).")
 }

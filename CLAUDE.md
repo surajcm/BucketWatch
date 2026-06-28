@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Status
 
-**Pre-implementation.** The repo currently contains only `brd.md` (the Business Requirements Document) and a stub `README.md`. There is no source code, no `build.gradle.kts`, and no tests yet. `brd.md` is the source of truth for what is being built — read it before implementing anything, and keep this file aligned with it as code lands.
+**M0 complete.** Gradle scaffold, quality gates, and CI are in place. `brd.md` is the source of truth for what is being built — read it before implementing anything. Next milestone: **M1** (Domain Model — `S3ChangeEvent`, `StateStore`, `InMemoryStateStore`).
 
 ## What BucketWatch Is
 
@@ -34,22 +34,21 @@ Key components and their responsibilities:
 - **Java interop**: design APIs so Java callers work naturally (builder accepts a config lambda; avoid Kotlin-only constructs in public signatures). See brd.md §9.4.
 - Poll interval bounds: **min 10s, max 24h, default 5m**.
 
-## Planned Toolchain (not yet present — confirm against brd.md §8.3–8.4 when scaffolding)
+## Toolchain
 
-- **Build**: Gradle with Kotlin DSL (`build.gradle.kts`), multi-module (`bucketwatch-core`, future `bucketwatch-spring-boot-starter`).
-- **Targets**: Java 11+, Kotlin 1.8+, AWS SDK **v2** (`software.amazon.awssdk:s3`).
-- **Test**: JUnit 5 (`junit-jupiter`), MockK for unit tests, **Testcontainers + LocalStack** for S3 integration tests.
-- **Quality gates**: detekt (zero critical/major), JaCoCo coverage > 80%.
+- **Build**: Gradle 8.10.2 with Kotlin DSL, multi-module (`bucketwatch-core`; `bucketwatch-spring-boot-starter` reserved for v1.1).
+- **Targets**: Java 11 bytecode (toolchain auto-provisioned via foojay), Kotlin 2.0.21, AWS SDK v2 (`software.amazon.awssdk:s3` 2.28.16).
+- **Test**: JUnit 5 (`junit-jupiter`), MockK for unit tests. Testcontainers + LocalStack land in M6 for integration tests.
+- **Quality gates**: detekt 1.23.7 (`config/detekt/detekt.yml`, zero issues fail the build), JaCoCo HTML + XML report (coverage target ≥ 80% enforced from M6).
+- **CI**: GitHub Actions (`.github/workflows/ci.yml`) — build → test → detekt → jacocoTestReport on push/PR.
 
-Once `build.gradle.kts` exists, the expected commands will be:
+Commands:
 - Build: `./gradlew build`
 - All tests: `./gradlew test`
-- Single test class: `./gradlew test --tests "io.github.*.BucketWatchTest"`
-- Single test method: `./gradlew test --tests "io.github.*.ChangeDetectorTest.methodName"`
+- Single test class: `./gradlew test --tests "io.github.surajcm.bucketwatch.BucketWatchTest"`
+- Single test method: `./gradlew test --tests "io.github.surajcm.bucketwatch.ChangeDetectorTest.methodName"`
 - Lint: `./gradlew detekt`
 - Coverage: `./gradlew jacocoTestReport`
-
-Verify these against the actual Gradle config once it is committed, and update this section.
 
 ## Scope Discipline
 
